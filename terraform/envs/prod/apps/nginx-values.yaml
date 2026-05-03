@@ -1,0 +1,16 @@
+controller:
+  image:
+    registry: registry.k8s.io
+    image: ingress-nginx/controller
+  service:
+    type: LoadBalancer
+  metrics:
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
+    # serviceMonitor:
+    #   enabled: true
+  extraArgs:
+    metrics-per-host: "true"
