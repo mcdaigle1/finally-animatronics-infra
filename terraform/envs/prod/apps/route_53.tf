@@ -1,6 +1,17 @@
 data "aws_route53_zone" "primary" {
   name         = "finallyanimatronics.com."
-  private_zone = false 
+  private_zone = false
+}
+
+data "kubernetes_service_v1" "nginx_ingress_controller" {
+  metadata {
+    name      = "ingress-nginx-controller"
+    namespace = "ingress-nginx"
+  }
+
+  depends_on = [
+    helm_release.nginx_ingress
+  ]
 }
 
 resource "aws_route53_record" "api_cname" {
@@ -8,5 +19,8 @@ resource "aws_route53_record" "api_cname" {
   name    = "api.finallyanimatronics.com"
   type    = "CNAME"
   ttl     = 300
-  records = [kubernetes_ingress_v1.finally_animatronics_ingress.status.0.load_balancer.0.ingress.0.hostname]
+
+  records = [
+    data.kubernetes_service_v1.nginx_ingress_controller.status[0].load_balancer[0].ingress[0].hostname
+  ]
 }
